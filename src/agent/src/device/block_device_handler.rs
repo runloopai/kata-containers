@@ -163,8 +163,7 @@ pub struct VirtioBlkPciMatcher {
 
 impl VirtioBlkPciMatcher {
     pub fn new(relpath: &str) -> VirtioBlkPciMatcher {
-        let root_bus = create_pci_root_bus_path();
-        let re = format!(r"^{}{}/virtio[0-9]+/block/", root_bus, relpath);
+        let re = format!(r"{}/virtio[0-9]+/block/", relpath);
 
         VirtioBlkPciMatcher {
             rex: Regex::new(&re).expect("BUG: failed to compile VirtioBlkPciMatcher regex"),
