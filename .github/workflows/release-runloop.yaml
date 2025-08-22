@@ -11,6 +11,11 @@ permissions:
 
 jobs:
   build-static-tarball-amd64:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
     uses: ./.github/workflows/build-kata-static-tarball-amd64.yaml
     with:
       push-to-registry: "no"
@@ -20,6 +25,11 @@ jobs:
       KBUILD_SIGN_PIN: ""
 
   build-static-tarball-arm64:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
     uses: ./.github/workflows/build-kata-static-tarball-arm64.yaml
     with:
       push-to-registry: "no"
