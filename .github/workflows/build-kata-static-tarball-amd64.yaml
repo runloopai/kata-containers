@@ -1,5 +1,6 @@
 name: CI | Build kata-static tarball for amd64
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       stage:
