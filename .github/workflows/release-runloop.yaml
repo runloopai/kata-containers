@@ -1,0 +1,28 @@
+name: Build amd64 and arm64 Static Binaries
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+
+permissions:
+  contents: read
+
+
+jobs:
+  build-static-tarball-amd64:
+    uses: ./.github/workflows/build-kata-static-tarball-amd64.yaml
+    with:
+      push-to-registry: "no"
+      stage: "test"
+    secrets:
+      QUAY_DEPLOYER_PASSWORD: ""
+      KBUILD_SIGN_PIN: ""
+
+  build-static-tarball-arm64:
+    uses: ./.github/workflows/build-kata-static-tarball-arm64.yaml
+    with:
+      push-to-registry: "no"
+      stage: "test"
+    secrets:
+      QUAY_DEPLOYER_PASSWORD: ""
