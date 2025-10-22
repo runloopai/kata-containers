@@ -82,7 +82,6 @@ jobs:
       KATA_HOST_OS: ${{ matrix.host_os }}
       KATA_HYPERVISOR: ${{ matrix.vmm }}
       KUBERNETES: "vanilla"
-      USING_NFD: "false"
       K8S_TEST_HOST_TYPE: ${{ matrix.instance-type }}
       GENPOLICY_PULL_METHOD: ${{ matrix.genpolicy-pull-method }}
       AUTO_GENERATE_POLICY: ${{ matrix.auto-generate-policy }}
