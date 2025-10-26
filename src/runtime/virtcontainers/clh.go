@@ -283,6 +283,7 @@ var clhKernelParams = []Param{
 	{"panic", "1"},         // upon kernel panic wait 1 second before reboot
 	{"no_timer_check", ""}, // do not Check broken timer IRQ resources
 	{"noreplace-smp", ""},  // do not replace SMP instructions
+	{"acpi", "on"},         // ACPI hotplug enabled
 }
 
 var clhDebugKernelParams = []Param{
@@ -541,7 +542,18 @@ func (clh *cloudHypervisor) CreateVM(ctx context.Context, id string, network Net
 	if err != nil {
 		return err
 	}
-	clh.vmconfig.Payload.SetKernel(kernelPath)
+
+	if runtime.GOARCH == "arm64" {
+		// We use a special firmware to setup ACPI hotplug.
+		clh.vmconfig.Payload.SetKernel("/opt/kata/share/kata-clh/hypervisor-fw")
+		// And we mount the kernel path as a virtio-blk.
+		boot := *chclient.NewDiskConfig()
+		boot.SetPath(kernelPath)
+		boot.SetReadonly(true)
+		clh.vmconfig.Disks = &[]chclient.DiskConfig{boot}
+	} else {
+		clh.vmconfig.Payload.SetKernel(kernelPath)
+	}
 
 	clh.vmconfig.Platform = chclient.NewPlatformConfig()
 	platform := clh.vmconfig.Platform
