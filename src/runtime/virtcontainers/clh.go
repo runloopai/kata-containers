@@ -663,7 +663,9 @@ func (clh *cloudHypervisor) CreateVM(ctx context.Context, id string, network Net
 	} else {
 		// Use serial port as the guest console only in debug mode,
 		// so that we can gather early OS booting log
-		if clh.config.Debug {
+		// TODO: remove the always true conditional once CLH startup
+		// issue with EFI-bootloader is resolved.
+		if clh.config.Debug || true {
 			clh.vmconfig.Serial = chclient.NewConsoleConfig(cctTTY)
 		} else {
 			clh.vmconfig.Serial = chclient.NewConsoleConfig(cctOFF)
