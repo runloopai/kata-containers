@@ -1,0 +1,53 @@
+name: Runloop Release
+
+permissions:
+  id-token: write
+  contents: write
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
+
+      - name: Get tag version
+        id: get_tag
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Build containerd-shim-kata-v2
+        env:
+          GOARCH: arm64
+          GOOS: linux
+        run: |
+          make -C src/runtime containerd-shim-v2
+          mv src/runtime/containerd-shim-kata-v2 src/runtime/containerd-shim-kata-v2-arm64
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src/runtime/containerd-shim-kata-v2-arm64
+      
+      - name: Assume AWS IAM role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ARTIFACT_ROLE_ARN }}
+          aws-region: us-east-2
+      
+      - name: Release to S3
+        run: |
+          aws s3 cp src/runtime/containerd-shim-kata-v2-arm64 \
+            s3://${BUCKET}/containerd-shim-kata-v2/containerd-shim-kata-v2-${TAG_VERSION}-linux-arm64
+        env:
+          BUCKET: ${{ secrets.APT_S3_BUCKET }}
