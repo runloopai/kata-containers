@@ -1,0 +1,44 @@
+name: Runloop Release
+
+permissions:
+  id-token: write
+  contents: write
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64, amd64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.24'
+
+      - name: Get tag version
+        id: get_tag
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Build containerd-shim-kata-v2
+        env:
+          CGO_ENABLED: "0"
+          GOARCH: ${{ matrix.arch }}
+          GOOS: linux
+        run: |
+          make -C src/runtime containerd-shim-v2
+          mv src/runtime/containerd-shim-kata-v2 src/runtime/containerd-shim-kata-v2-${GOARCH}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src/runtime/containerd-shim-kata-v2-${{ matrix.arch }}
