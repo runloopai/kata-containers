@@ -830,7 +830,9 @@ func (s *Sandbox) createResourceController() error {
 			// sandbox_cgroup_only are configured, then the vmm needs access to
 			// /dev/ptmx.  Add this to the device allowlist if it is not
 			// already present in the config.
-			if s.config.HypervisorConfig.Debug && s.config.SandboxCgroupOnly && !ptmxDeviceExist {
+			// TODO: Remove the always true conditional once CLH startup issue with EFI-bootload is
+			// resolved.
+			if (s.config.HypervisorConfig.Debug || true) && s.config.SandboxCgroupOnly && !ptmxDeviceExist {
 				// "/dev/ptmx"
 				resources.Devices = append(resources.Devices, []specs.LinuxDeviceCgroup{
 					{Type: "c", Major: intptr(5), Minor: intptr(2), Access: rwm, Allow: true},
